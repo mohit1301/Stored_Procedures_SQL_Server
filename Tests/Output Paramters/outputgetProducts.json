@@ -1,0 +1,32 @@
+[
+    {
+    "product_id": 1,
+    "product_name": "Shirt",
+    "product_price": 500,
+    "in_stock": true
+},
+{
+    "product_id": 2,
+    "product_name": "Jeans",
+    "product_price": 1000,
+    "in_stock": true
+},
+{
+    "product_id": 3,
+    "product_name": "Jacket",
+    "product_price": 3000,
+    "in_stock": false
+},
+{
+    "product_id": 4,
+    "product_name": "t-shirt",
+    "product_price": 200,
+    "in_stock": false
+},
+{
+    "product_id": 5,
+    "product_name": "Hat",
+    "product_price": 100,
+    "in_stock": true
+}
+]
