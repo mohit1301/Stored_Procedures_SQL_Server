@@ -8,8 +8,7 @@ exports.getProducts = async (req, res) => {
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'getProducts');
         
-        // return result.recordset
-        res.send(result.recordset)
+       res.status(200).send(result.recordset)
         
     } catch (error) {
         console.log(error)
@@ -19,13 +18,19 @@ exports.getProducts = async (req, res) => {
 //controller for fetching One product using product_id
 exports.getOneProduct = async (req, res) => {
     try {
+        const {product_id} = req.body
+
+        if(!product_id){
+            return res.status(400).send('Enter a product id to be fetched')
+        }
 
         let sqlParameters = productSqlParameters(req.body);
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'getOneProduct', sqlParameters);
         
-        res.send(result.recordset)
-        // return result.recordset
+        res.status(200).send(result.recordset)
+        // return result
+        
     } catch (error) {
         console.log(error)
     }
@@ -34,13 +39,14 @@ exports.getOneProduct = async (req, res) => {
 //controller for inserting One product in products table
 exports.insertProduct = async (req, res) => {
     try {
-        let sqlParameters = productSqlParameters(req.body);
-
-        let connection = await pool.connect()
-        let result = await storedProcedure.executeStoredProcedure(connection, 'insertProduct', sqlParameters);
         
-        return result;
-
+        let sqlParameters = productSqlParameters(req.body);
+        
+            let connection = await pool.connect()
+            let result = await storedProcedure.executeStoredProcedure(connection, 'insertProduct', sqlParameters);
+            res.status(200).send(result)
+            // return result;
+        
     } catch (error) {
         console.log(error)
     }
@@ -49,17 +55,19 @@ exports.insertProduct = async (req, res) => {
 //controller for updating all values in products table
 exports.updateProduct = async (req, res) => {
     try {
+        
+        const {product_id, product_name, product_price, in_stock} = req.body
+        if(!((product_id && product_name && product_price && in_stock) && (in_stock.length === 0))){
+            res.status(400).send('Enter all input values(product_id, product_name, product_price, in_stock)')
+        }
+
         let sqlParameters = productSqlParameters(req.body);
 
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'updateProduct', sqlParameters);
 
-        // outputResponse = {
-        //     status: 200,
-        //     data: result.rowsAffected
-        // }
-        // res.send(outputResponse)
-        return result
+        res.status(200).send(result)
+        // return result
 
     } catch (error) {
         console.log(error)
@@ -69,16 +77,19 @@ exports.updateProduct = async (req, res) => {
 //controller for upserting One product 
 exports.upsertProduct = async (req, res) => {
     try {
+
+        const {product_id, product_name, product_price, in_stock} = req.body
+        if(!(product_id && product_name && product_price && in_stock)){
+            res.status(400).send('Enter all input values(product_id, product_name, product_price, in_stock)')
+        }
+
         let sqlParameters = productSqlParameters(req.body);
 
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'upsertProduct', sqlParameters);
 
-        outputResponse = {
-            status: 200,
-            data: result.rowsAffected
-        }
-        res.send(outputResponse)
+        res.status(200).send(result)
+        // return result
 
     } catch (error) {
         console.log(error)
@@ -88,16 +99,19 @@ exports.upsertProduct = async (req, res) => {
 //controller for updating specific values of a product
 exports.partialUpdateProduct = async (req, res) => {
     try {
+
+        const {product_id} = req.body 
+        if(!product_id){
+            res.status(400).send('Enter the product id to be updated')
+        }
+
         let sqlParameters = productSqlParameters(req.body);
 
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'partialUpdateProduct', sqlParameters);
 
-        outputResponse = {
-            status: 200,
-            data: result.rowsAffected
-        }
-        res.send(outputResponse)
+        res.status(200).send(result)
+        // return result
 
     } catch (error) {
         console.log(error)
@@ -107,17 +121,19 @@ exports.partialUpdateProduct = async (req, res) => {
 //controller for deleting a product from the products table
 exports.deleteProduct = async (req, res) => {
     try {
+
+        const {product_id} = req.body 
+        if(!product_id){
+            res.status(400).send('Enter the product id to be deleted')
+        }
         let sqlParameters = productSqlParameters(req.body);
 
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'deleteProduct', sqlParameters);
 
-        // outputResponse = {
-        //     status: 200,
-        //     data: result.rowsAffected
-        // }
-        // res.send(outputResponse)
-        return result
+        res.status(200).send(result)
+
+        // return result
 
 
     } catch (error) {
@@ -135,4 +151,3 @@ function productSqlParameters(requestBody) {
     return sqlParameters
 }
 
-exports.productSqlParameters;

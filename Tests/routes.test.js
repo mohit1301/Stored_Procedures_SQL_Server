@@ -1,69 +1,183 @@
-const request = require('supertest')
+const superRequest = require('supertest')
 const app = require('../app')
 
 var storedProcedure = require('../Stored_Procedure/storedProcedure')
-const productController = require('../Controller/controller')
+const outputinsertProduct = require('./Output Paramters/outputinsertProduct.json')
 const outputgetProducts = require('./Output Paramters/outputgetProducts.json')
 const outputgetOneProduct = require('./Output Paramters/outputgetOneProduct.json')
-const outputinsertProduct = require('./Output Paramters/outputinsertProduct.json')
 const outputupdateProduct = require('./Output Paramters/outputupdateProduct.json')
 const outputdeleteProduct = require('./Output Paramters/outputdeleteProduct.json')
+const outputupsertProduct = require('./Output Paramters/outputupsertProduct.json')
+const outputpartialUpdateProduct = require('./Output Paramters/outputpartialUpdateProduct.json')
+
 
 beforeAll(() => {
-  
-    storedProcedure.executeStoredProcedure = jest.fn()
+
+  storedProcedure.executeStoredProcedure = jest.fn()
 })
+
+
 describe('Test for Endpoints', () => {
 
-    test('testing insertProduct function', async () => {
+  test('should create a new product', async () => {
+    
+    var request = {
+      method: 'POST',
+      body: {
+        product_id: 101,
+        product_name: 'testProduct',
+        product_price: 100,
+        in_stock: 0
+      }
+    };
 
-        storedProcedure.executeStoredProcedure.mockResolvedValueOnce(outputinsertProduct)
-
-        const result = await productController.insertProduct({}, {});
-        expect(result).toEqual(outputinsertProduct);
-    })
-
-    test('testing getProducts function', async () => {
-
-        storedProcedure.executeStoredProcedure.mockResolvedValueOnce({recordset: outputgetProducts})
-
-        const result = await productController.getProducts({}, {});
-        expect(result).toEqual(outputgetProducts);
-        // await expect(productController.getProducts({}, {})).resolves.toBe();
-    })
-
-    test('testing getOneProduct function',  function done() {
-
-        storedProcedure.executeStoredProcedure.mockResolvedValueOnce({recordset: outputgetOneProduct})
-
-        // request(app).get('/getProduct')
-        // .expect(outputgetOneProduct)
-        // .expect(200, done)
-
-        const result = await productController.getOneProduct({}, {});
-        expect(result).toEqual(outputgetOneProduct);
+    storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputinsertProduct)
+    
+    const response = await superRequest(app)
+    .post('/products/insertProduct')
+    .send(request)
+    .set('Accept','application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(outputinsertProduct)
     })
 
 
-    test('testing updateProduct function', async () => {
+  test('should fetch a product given product_id', async () => {
+    
+    var request = {
+      product_id: 3
+    };
 
-        storedProcedure.executeStoredProcedure.mockReturnValue(outputupdateProduct)
-
-        const result = await productController.updateProduct({}, {});
-        expect(result).toEqual(outputupdateProduct);
+    storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputgetOneProduct)
+    
+    const response = await superRequest(app)
+    .get('/products/getOneProduct')
+    .send(request)
+    .set('Accept','application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(outputgetOneProduct.recordset)
     })
 
-    test('testing deleteProduct function', async () => {
 
-        storedProcedure.executeStoredProcedure.mockReturnValue(outputdeleteProduct)
+  test('should fetch all the products', async () => {
+    
+    var request = {
+      method: 'GET'
+    };
 
-        const result = await productController.deleteProduct({}, {});
-        expect(result).toEqual(outputdeleteProduct);
+    storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputgetProducts)
+    
+    const response = await superRequest(app)
+    .get('/products/getProducts')
+    .send(request)
+    .set('Accept','application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(outputgetProducts.recordset)
     })
+
+
+  test('should update a product', async () => {
+    
+    var request = {
+        product_id: 101,
+        product_name: 'testProduct',
+        product_price: 100,
+        in_stock: 0
+      
+    };
+
+    storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputupdateProduct)
+    
+    const response = await superRequest(app)
+    .put('/products/updateProduct')
+    .send(request)
+    .set('Accept','application/json');
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual(outputupdateProduct)
+    })
+    
+    test('should upsert a product', async () => {
+      
+      var request = {
+        product_id: 101,
+        product_name: 'testProduct',
+        product_price: 100,
+        in_stock: 0
+      };
+      
+      storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputupsertProduct)
+      
+      const response = await superRequest(app)
+      .post('/products/upsertProduct')
+      .send(request)
+      .set('Accept','application/json');
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(outputupsertProduct)
+    })
+    
+    test('should partially update a product', async () => {
+      
+      var request = {
+          product_id: 101,
+          product_name: 'testProduct',
+        
+      };
+  
+      storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputpartialUpdateProduct)
+      
+      const response = await superRequest(app)
+      .put('/products/partialUpdateProduct')
+      .send(request)
+      .set('Accept','application/json');
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(outputpartialUpdateProduct)
+      })
+
+    test('should delete a product given a product_id', async () => {
+      
+      var request = {
+          product_id: 101
+        
+      };
+  
+      storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputdeleteProduct)
+      
+      const response = await superRequest(app)
+      .delete('/products/deleteProduct')
+      .send(request)
+      .set('Accept','application/json');
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(outputdeleteProduct)
+      })
+
+
+
+    // test('should create a new object', (done) => {
+  
+    //   var request = {
+    //     method: 'POST',
+    //     body: {
+    //       product_id: 101,
+    //       product_name: 'testProduct', 
+    //       product_price: 100,
+    //       in_stock: 0
+    //     }
+    //   };
+  
+    //   storedProcedure.executeStoredProcedure.mockReturnValueOnce(outputinsertProduct)
+  
+    //  superRequest(app)
+    //     .post('/products/insertProduct')
+    //     .send(request)
+    //     .set('Accept','application/json')
+    //     .expect(200,outputinsertProduct)
+    //     .end((err,res)=>{
+    //       if(err) return done(err);
+    //       return done();
+    //     })
+    // })
+
+
+    
 
 })
-
-
-
-
-
