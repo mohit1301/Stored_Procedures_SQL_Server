@@ -8,91 +8,104 @@ exports.getProducts = async (req, res) => {
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'getProducts');
         
-       res.status(200).send(result.recordset)
+       res.status(200).json({data: result.recordset})
         
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
 //controller for fetching One product using product_id
 exports.getOneProduct = async (req, res) => {
     try {
-        const {product_id} = req.body
-
-        if(!product_id){
-            return res.status(400).send('Enter a product id to be fetched')
-        }
+        const validationResult = validateOneParamter(req.body)
+        
+        if(validationResult == "input field not present")
+         return res.status(400).json({error: 'Enter the product id to be fetched'})
+        else{
 
         let sqlParameters = productSqlParameters(req.body);
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'getOneProduct', sqlParameters);
         
-        res.status(200).send(result.recordset)
-        // return result
+        res.status(200).json({data: result.recordset})
+        }
         
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
 //controller for inserting One product in products table
 exports.insertProduct = async (req, res) => {
     try {
-        
-        let sqlParameters = productSqlParameters(req.body);
-        
+        const validationResult = validateRequestBody(req.body)
+        if(validationResult == "All input fields not present"){
+
+         return res.status(400).json({error: 'Enter all input values(product_id, product_name, product_price, in_stock)'});
+        }
+        else{
+            let sqlParameters = productSqlParameters(req.body);
+            
             let connection = await pool.connect()
-            let result = await storedProcedure.executeStoredProcedure(connection, 'insertProduct', sqlParameters);
-            res.status(200).send(result)
-            // return result;
-        
+            let result = await storedProcedure.executeStoredProcedure(connection, 'insertProduct', sqlParameters)
+
+            if(result.rowsAffected == 1){
+                res.status(200).json({message: "Product inserted successfully"})
+            }
+        }
+    
     } catch (error) {
         console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
 //controller for updating all values in products table
 exports.updateProduct = async (req, res) => {
     try {
-        
-        const {product_id, product_name, product_price, in_stock} = req.body
-        if(!((product_id && product_name && product_price && in_stock) && (in_stock.length === 0))){
-            res.status(400).send('Enter all input values(product_id, product_name, product_price, in_stock)')
+        const validationResult = validateRequestBody(req.body)
+        if(validationResult == "All input fields not present"){
+         return res.status(400).json({error: 'Enter all input values(product_id, product_name, product_price, in_stock)'});
         }
 
-        let sqlParameters = productSqlParameters(req.body);
+        else{
 
-        let connection = await pool.connect()
-        let result = await storedProcedure.executeStoredProcedure(connection, 'updateProduct', sqlParameters);
-
-        res.status(200).send(result)
-        // return result
-
+            let sqlParameters = productSqlParameters(req.body);
+    
+            let connection = await pool.connect()
+            let result = await storedProcedure.executeStoredProcedure(connection, 'updateProduct', sqlParameters);
+    
+            if(result.rowsAffected == 1){
+                res.status(200).json({message: "Product updated successfully"})
+            }
+        }
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
 //controller for upserting One product 
 exports.upsertProduct = async (req, res) => {
     try {
+        const validationResult = validateRequestBody(req.body)
+        if(validationResult == "All input fields not present"){
 
-        const {product_id, product_name, product_price, in_stock} = req.body
-        if(!(product_id && product_name && product_price && in_stock)){
-            res.status(400).send('Enter all input values(product_id, product_name, product_price, in_stock)')
+         return res.status(400).json({error: 'Enter all input values(product_id, product_name, product_price, in_stock)'});
         }
+        else{
 
-        let sqlParameters = productSqlParameters(req.body);
-
-        let connection = await pool.connect()
-        let result = await storedProcedure.executeStoredProcedure(connection, 'upsertProduct', sqlParameters);
-
-        res.status(200).send(result)
-        // return result
-
+            let sqlParameters = productSqlParameters(req.body);
+    
+            let connection = await pool.connect()
+            let result = await storedProcedure.executeStoredProcedure(connection, 'upsertProduct', sqlParameters);
+    
+            if(result.rowsAffected == 1){
+                res.status(200).json({message: "Product upserted successfully"})
+            }
+        }
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
@@ -100,44 +113,46 @@ exports.upsertProduct = async (req, res) => {
 exports.partialUpdateProduct = async (req, res) => {
     try {
 
-        const {product_id} = req.body 
-        if(!product_id){
-            res.status(400).send('Enter the product id to be updated')
-        }
-
+        const validationResult = validateOneParamter(req.body)
+        
+        if(validationResult == "input field not present")
+         return res.status(400).json({error: 'Enter the product id to be updated'})
+        else{
         let sqlParameters = productSqlParameters(req.body);
 
         let connection = await pool.connect()
         let result = await storedProcedure.executeStoredProcedure(connection, 'partialUpdateProduct', sqlParameters);
 
-        res.status(200).send(result)
-        // return result
+        if(result.rowsAffected == 1){
+            res.status(200).json({message: "Product Updated successfully"})
+        }
+    }
 
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
+
     }
 }
 
 //controller for deleting a product from the products table
 exports.deleteProduct = async (req, res) => {
     try {
-
-        const {product_id} = req.body 
-        if(!product_id){
-            res.status(400).send('Enter the product id to be deleted')
+        const validationResult = validateOneParamter(req.body)
+        
+        if(validationResult == "input field not present")
+         return res.status(400).send('Enter the product id to be deleted')
+        else{
+            let sqlParameters = productSqlParameters(req.body);
+    
+            let connection = await pool.connect()
+            let result = await storedProcedure.executeStoredProcedure(connection, 'deleteProduct', sqlParameters);
+            if(result.rowsAffected == 1){
+                res.status(200).json({message: "Product deleted successfully"})
+            }
         }
-        let sqlParameters = productSqlParameters(req.body);
-
-        let connection = await pool.connect()
-        let result = await storedProcedure.executeStoredProcedure(connection, 'deleteProduct', sqlParameters);
-
-        res.status(200).send(result)
-
-        // return result
-
 
     } catch (error) {
-        console.log(error)
+        res.status(400).json({error: error.message})
     }
 }
 
@@ -151,3 +166,28 @@ function productSqlParameters(requestBody) {
     return sqlParameters
 }
 
+
+function validateRequestBody(requestBody){
+    let values = ['product_id', 'product_name', 'product_price', 'in_stock']
+    let result =''
+
+    for(let element = 0; element < values.length ; element++){
+
+        if(requestBody[values[element]] == undefined || requestBody[values[element]].length == 0 )
+        {
+         result = "All input fields not present"
+         break;
+        }   
+        else{
+            result = "All fields present"
+        } 
+    };
+    return result
+}
+
+function validateOneParamter(requestBody){
+ 
+    if(requestBody.product_id == undefined || requestBody.product_id.length == 0){
+        return "input field not present"
+    }
+}

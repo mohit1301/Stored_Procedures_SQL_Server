@@ -1,4 +1,5 @@
 // Assigning parameters in the request object & executing the stored procedure
+const res = require('express/lib/response');
 const sql = require('mssql')
 
 async function executeStoredProcedure(connection, storedProcedureName, parameters){
@@ -12,12 +13,12 @@ async function executeStoredProcedure(connection, storedProcedureName, parameter
             });
         }
         
-        let result = await request.execute(`dbo.${storedProcedureName}`);
+        let result = await request.execute(`dbo.${storedProcedureName}`)
         sql.close()
         return result
         
     } catch (error) {
-        console.log(error)
+        throw error
     }
 }
 
