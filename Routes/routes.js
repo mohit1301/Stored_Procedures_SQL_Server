@@ -1,7 +1,7 @@
 const express = require('express')
 const Router = express.Router()
 const{ getProducts, getOneProduct, insertProduct, 
-    deleteProduct, updateProduct, upsertProduct, partialUpdateProduct } = require('../Controller/controller')
+    deleteProduct, updateProduct, upsertProduct, partialUpdateProduct, insertProductV2 } = require('../Controller/controller')
 
 
     

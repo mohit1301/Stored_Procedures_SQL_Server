@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "server": "nodemon app.js"
+    "test": "jest routes",
+    "server": "nodemon server.js"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +17,7 @@
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
     "msnodesqlv8": "^2.4.8",
-    "mssql": "^8.1.1",
+    "mssql": "^8.1.2",
     "nodemon": "^2.0.16"
   },
   "devDependencies": {

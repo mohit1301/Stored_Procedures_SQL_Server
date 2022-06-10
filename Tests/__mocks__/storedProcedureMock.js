@@ -1,8 +1,5 @@
 const storedProcedure = require('../../Stored_Procedure/storedProcedure')
-
-const {pool} = require('../../dbConfiguration')
-
-pool.connect = jest.fn()
+ 
 
 storedProcedure.executeStoredProcedure = jest.fn((connection, storedProcedure, parameters) => {
 
@@ -10,10 +7,13 @@ storedProcedure.executeStoredProcedure = jest.fn((connection, storedProcedure, p
         return;
 
     const outputInsertProductSP = require('./outputStoredProcedure/outputInsertProductSP.json')
+    const outputgetOneProductSP = require('./outputStoredProcedure/outputgetOneProductSP.json')
 
     switch (storedProcedure) {
-        case insertProduct:
+        case 'insertProduct':
             return outputInsertProductSP;
+        case 'getOneProduct':
+            return outputgetOneProductSP;
     }
 });
 

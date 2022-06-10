@@ -1,14 +1,15 @@
-const sql = require('mssql/msnodesqlv8')
+const sql = require('mssql')
 
 const config = {
-    server: "MOHIT_AHUJA",
-    port: 1433,
-    driver: "msnodesqlv8",
-    user: "Mohit Ahuja",
-    password: "",
-    database: "testdb",
+    server: "localhost",
+    // port: 1434,
+    // driver: "msnodesqlv8",
+    user: "root",
+    password: "root",
+    database: "practiceDB",
     options: {
-        trustedConnection: true
+        trustedConnection: true,
+        trustServerCertificate: true
     },
     pool: {
         max: 10,
@@ -18,15 +19,15 @@ const config = {
 }
 const pool = new sql.ConnectionPool(config);
 
-const connect = async () => {
-    if (!pool) {
-        pool = new sql.ConnectionPool(config);
-    }
-    if (!pool.connected) {
-        await pool.connect();
-    }
-};
+// const connect = async () => {
+//     if (!pool) {
+//         pool = new sql.ConnectionPool(config);
+//     }
+//     if (!pool.connected) {
+//         await pool.connect();
+//     }
+// };
 
 module.exports = {
-    pool, connect
+    pool
 }
