@@ -8,7 +8,6 @@ exports.getOneService = async(requestBody)=>{
     const connection =  await pool.connect()
     let result = await storedProcedure.executeStoredProcedure(connection, 'getOneProduct', sqlParameters)
     await connection.close()
-
     return result
 }
 

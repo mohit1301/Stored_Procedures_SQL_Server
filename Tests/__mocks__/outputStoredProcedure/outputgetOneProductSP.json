@@ -1,3 +1,14 @@
 {
-    "name": "Mohit"
-}
+    "recordsets": [ [ {} ] ],
+    "recordset": [
+      {
+        "product_id": 19,
+        "product_name": "Charger",
+        "product_price": 300,
+        "in_stock": false
+      }
+    ],
+    "output": {},
+    "rowsAffected": [ 1 ],
+    "returnValue": 0
+  }

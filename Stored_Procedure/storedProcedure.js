@@ -12,9 +12,7 @@ async function executeStoredProcedure(connection, storedProcedureName, parameter
         }
         
         return await request.execute(`dbo.${storedProcedureName}`)
-        // sql.close()
-        // return result
-        
+
     } catch (error) {
         throw error
     }
